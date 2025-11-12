@@ -1,7 +1,7 @@
 > ⚠️ **Important Note on Confidentiality**
 > (关于保密的重要说明)
 >
-> This project is a graduate-level academic research project, conducted in collaboration with Professor Michael Cavers for a future co-authored paper.
+> This project is a academic research project, conducted in collaboration with Professor Michael Scott Cavers for a future co-authored paper.
 >
 > As this research contains **unpublished original findings** (e.g., the solutions to Problem 1.4 and new theoretical proofs), the core computational scripts and the `results.txt` dataset are kept in a **private repository** to prevent being "scooped" prior to publication on arXiv.
 >
