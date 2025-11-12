@@ -1,49 +1,74 @@
 import numpy as np
 
 def is_strongly_connected(A):
+    """
+    Checks if the graph represented by adjacency matrix A is strongly connected.
+    """
     n = A.shape[0]
+    # Uses the property that (A + I)^n will be all positive if A is strongly connected.
     M = np.linalg.matrix_power(A + np.eye(n, dtype=int), n)
     return np.all(M > 0)
 
 def has_zero_row_or_col(M):
-    """排除有全零行/列的情况（一定不强连通）"""
+    """
+    (Pruning) Excludes matrices with an all-zero row or column.
+    (A graph with such a node cannot be strongly connected).
+    """
     return np.any(M.sum(1) == 0) or np.any(M.sum(0) == 0)
 
 def build_matrix_from_bits(code, r, c):
-    """把整数 code 的二进制展开成 r×c 的 0/1 矩阵"""
+    """
+    Unpacks the bits of an integer 'code' into an r x c (0,1)-matrix.
+    """
     bits = [(code >> k) & 1 for k in range(r * c)]
     return np.array(bits, dtype=int).reshape(r, c)
 
 def two_cycle_count(B, C):
-    """k = # {(i,j): B_ij=1 且 C_ji=1}"""
+    """
+    Calculates k, the number of 2-cycles in the bipartite graph.
+    k = # {(i,j): B_ij=1 and C_ji=1}
+    """
     return int(np.sum((B == 1) & (C.T == 1)))
 
 def has_three_eigs_form(A, k, tol=1e-6):
-    """判断 A 是否恰好有三种不同实特征值 ≈ {−√k, 0, √k}"""
+    """
+    Checks if A has exactly three distinct real eigenvalues ≈ {−√k, 0, √k}.
+    """
     eigs = np.linalg.eigvals(A.astype(float))
-    # 若存在显著虚部，排除
+    
+    # Prune if significant imaginary parts exist
     if np.max(np.abs(eigs.imag)) > 1e-8:
         return False, eigs
+        
     vals = np.sort(eigs.real)
-    # 去重（合并相近的数）
+    
+    # De-duplicate: merge near-zero values
     distinct = []
     for v in vals:
         if not distinct or abs(v - distinct[-1]) > tol:
             distinct.append(float(v))
+            
     if len(distinct) != 3:
         return False, distinct
+        
+    # k=0 means A must be nilpotent, which cannot have 3 distinct eigenvalues {-0, 0, +0}
+    if k == 0:
+        return False, distinct
+
     t = np.sqrt(k)
     target = np.array([-t, 0.0, t])
     return np.allclose(np.sort(distinct), target, atol=tol, rtol=0.0), distinct
 
 def canonical_key(B: np.ndarray, C: np.ndarray):
     """
-    生成 (B,C) 的“转置等价类”规范键：
-    在 (B,C) 与 (C^T, B^T) 两个表示中取字典序较小者。
+    Generates a canonical key for the transpose-equivalent pair (B,C) and (C^T, B^T).
+    We pick the lexicographically smaller of the two representations to avoid duplicates.
     """
     B8 = B.astype(np.uint8, copy=False)
     C8 = C.astype(np.uint8, copy=False)
+    # Key 1: The original (B, C) pair
     k1 = (B8.shape, C8.shape, B8.tobytes(), C8.tobytes())
+    # Key 2: The transposed pair (C^T, B^T)
     k2 = (C8.T.shape, B8.T.shape, C8.T.tobytes(), B8.T.tobytes())
     return k1 if k1 <= k2 else k2
 
@@ -56,14 +81,15 @@ if __name__ == "__main__":
         grand_good  = 0     # num of matrices satisfying Problem 1.1 (after dedup)
         dedup_skipped = 0   # how many were removed as transpose-duplicates
 
-        seen_keys = set()   # <<< 新增：记录已输出的转置等价类代表
+        seen_keys = set()   # Stores canonical keys to de-duplicate results
 
         for n in range(2, 7):  # n = 2,3,4,5,6
             good_this_n = 0     # count for current n
             f.write(f"\n=== n = {n} ===\n")
             print(f"\n=== n = {n} ===")
 
-            for n1 in range(1, n//2 + 1):    # 只取一半划分，避免 (n1,n2)/(n2,n1) 跨划分重复
+            # Only iterate through half the partitions to avoid (n1,n2) / (n2,n1) redundancy
+            for n1 in range(1, n//2 + 1):    
                 n2 = n - n1
                 kept_this_split = 0   # count for current (n1, n2)
 
@@ -111,7 +137,7 @@ if __name__ == "__main__":
                         if not ok:
                             continue
 
-                        # <<< 新增
+                        # De-duplication check
                         key = canonical_key(B, C)
                         if key in seen_keys:
                             dedup_skipped += 1
@@ -128,7 +154,7 @@ if __name__ == "__main__":
                         f.write("A=\n" + str(A) + "\n")
                         f.write(f"Eigenvalues ≈ {eigs}\n")
 
-                print(f"[n={n}, n1=?, n2=?] kept(after dedup)={kept_this_split}")
+                print(f"[n={n}] split (n1={n1}, n2={n2}) kept(after dedup)={kept_this_split}")
                 f.write(f"[n={n}] split kept(after dedup)={kept_this_split}\n")
 
             print(f"==> Total kept for n={n}: {good_this_n}")
