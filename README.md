@@ -1,5 +1,4 @@
 > ⚠️ **Important Note on Confidentiality**
-> (关于保密的重要说明)
 >
 > This project is a academic research project, conducted in collaboration with Professor Michael Scott Cavers for a future co-authored paper.
 >
