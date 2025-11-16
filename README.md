@@ -18,6 +18,9 @@ This research provides foundational mathematical insights for modern AI, particu
 * **Supervisor:** Professor Michael Cavers
 * **Status:** Co-Author on in-progress academic paper ("Eigenvalues of digraphs")
 
+Note on Public Code: ‘The spectral_graph_enumerator.py’ file in this public repository is a preliminary example script from the early stages of my research. It demonstrates the basic computational approach.
+The main, unpublished computational scripts, which contain the advanced pruning algorithms and generated the final results (e.g., the solutions to Problem 1.4), remain in a private repository to protect the integrity of the future co-authored paper.
+
 ---
 
 ## My Contributions
