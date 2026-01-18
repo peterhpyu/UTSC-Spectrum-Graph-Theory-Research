@@ -18,7 +18,11 @@ def has_zero_row_or_col(M):
 
 def build_matrix_from_bits(code, r, c):
     """
-    Unpacks the bits of an integer 'code' into an r x c (0,1)-matrix.
+    [Optimization] Unpacks the integer 'code' into an r x c binary matrix.
+    
+    Instead of recursively generating matrix objects, we enumerate the 
+    search space as linear integers. We use bitwise shifts (>>) and 
+    masking (&) to map the integer state directly to the matrix structure.
     """
     bits = [(code >> k) & 1 for k in range(r * c)]
     return np.array(bits, dtype=int).reshape(r, c)
@@ -171,3 +175,4 @@ if __name__ == "__main__":
         f.write(f"Transpose-duplicates skipped: {dedup_skipped}\n")
 
     print(f"\n✅ All results have been saved to '{output_file}'")
+
